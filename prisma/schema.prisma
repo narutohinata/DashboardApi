@@ -23,6 +23,7 @@ model Role {
   id Int @id @default(autoincrement())
   roleName String @unique
   users UsersOnRoles[]
+  permissions RolesOnPermission[]
 }
 
 model UsersOnRoles {
@@ -35,4 +36,85 @@ model UsersOnRoles {
   assignedBy String
   
   @@id([userId, roleId])
+}
+
+// 权限表
+model Permission {
+  id Int @id @default(autoincrement())
+  permissionName String
+  permissionTag String @unique
+  roles RolesOnPermission[]
+}
+
+model RolesOnPermission {
+  role Role @relation(fields: [roleId], references: [id])
+  roleId Int
+  permission Permission @relation(fields: [permissionId], references: [id])
+  permissionId Int
+
+  @@id([roleId, permissionId])
+}
+
+// 项目表
+model Project {
+  id Int @id @default(autoincrement())
+  is_obline Boolean @default(true)
+  name String @db.VarChar(255)
+  desc String? @db.LongText()
+  remark String? @db.LongText()
+  order Int @default(0)
+  regions Region[]
+}
+
+// 区域表
+model Region {
+  id Int @id @default(autoincrement())
+  appName String @unique
+  name String
+  bucketName String?
+  remark String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  project Project @relation(fields: [projectId], references: [id])
+  projectId Int
+  channels Channel[]
+}
+
+enum Platform {
+  IOS
+  ANDROID
+}
+
+// 渠道表
+model Channel {
+  id Int @id @default(autoincrement())
+  channelTag String
+  platform Platform
+  appId String @unique
+  regionId Int
+  region Region @relation(fields: [regionId], references: [id])
+  notices Notice[]
+}
+
+// 公告表
+model Notice {
+  id Int @id @default(autoincrement())
+  key String @unique
+  name String
+  priority Int
+  type String
+  channelId Int
+  releaseChannel Channel @relation(fields: [channelId], references: [id])
+  releasedDateTime DateTime
+  conditions Condition[]
+}
+
+// 发布条件
+model Condition {
+  id Int @id @default(autoincrement())
+  type String
+  op String
+  value String
+  noticeId Int
+  notice Notice @relation(fields: [noticeId], references: [id])
 }

@@ -9,12 +9,10 @@ import {
   Request,
   Res,
   UseGuards,
-  UsePipes,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiBody,
-  ApiHeader,
   ApiHeaders,
   ApiOperation,
   ApiResponse,
@@ -27,7 +25,6 @@ import { Response } from 'express';
 import { AppService } from './app.service';
 import { UserService } from './user/user.service';
 import { JwtAuthGuard } from './auth/jwt-auth.guard';
-import { JoiValidationPipe } from './joi-validation.pipe';
 import * as Joi from 'joi';
 import { RequiredValidationPipe } from './required-validation.pipe';
 
@@ -142,8 +139,8 @@ export class AppController {
         path: '/admin',
         name: 'admin',
         locale: 'menu.admin',
-        icon: 'crown',
         access: 'canAdmin',
+        icon: 'crown',
         children: [
           {
             path: '/admin/sub-page',
@@ -160,5 +157,10 @@ export class AppController {
         icon: 'table',
       },
     ];
+  }
+
+  @Get('permissions')
+  async getPermissions(): Promise<string[]> {
+    return ['canList', 'canAdminSubPage'];
   }
 }
